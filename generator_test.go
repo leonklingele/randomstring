@@ -31,3 +31,9 @@ func TestRandomStringInvalidLength(t *testing.T) {
 		}
 	}
 }
+
+func TestRandomStringInvalidChars(t *testing.T) {
+	if _, err := randomstring.Generate(1, ""); err != randomstring.ErrInvalidDictSpecified {
+		t.Errorf("unexpected error using empty dictionary: %v", err)
+	}
+}

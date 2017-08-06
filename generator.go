@@ -20,6 +20,8 @@ const (
 var (
 	// ErrInvalidLengthSpecified is returned when the length specified is invalid
 	ErrInvalidLengthSpecified = errors.New("invalid password length specified")
+	// ErrInvalidDictSpecified is returned when the dictionary specified is invalid
+	ErrInvalidDictSpecified = errors.New("invalid password dictionary specified")
 )
 
 // Generate generates a cryptographically secure and unbiased string of length 'l' using alphabet 'dict'
@@ -27,6 +29,10 @@ func Generate(l int, dict string) (string, error) {
 	// Length needs to be in range [1, 1<<31-1]
 	if l <= 0 || l > 1<<31-1 {
 		return "", ErrInvalidLengthSpecified
+	}
+
+	if len(dict) == 0 {
+		return "", ErrInvalidDictSpecified
 	}
 
 	buf := make([]byte, l)
