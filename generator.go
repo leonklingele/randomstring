@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"math/big"
+	"unicode/utf8"
 )
 
 const (
@@ -31,12 +32,14 @@ func Generate(l int, dict string) (string, error) {
 		return "", ErrInvalidLengthSpecified
 	}
 
-	if len(dict) == 0 {
+	dlen := utf8.RuneCountInString(dict)
+
+	if dlen == 0 {
 		return "", ErrInvalidDictSpecified
 	}
 
-	buf := make([]byte, l)
-	max := big.NewInt(int64(len(dict)))
+	buf := make([]rune, l)
+	max := big.NewInt(int64(dlen))
 
 	for i := 0; i < l; i++ {
 		index, err := randomInt(max)
@@ -44,7 +47,7 @@ func Generate(l int, dict string) (string, error) {
 			return "", err
 		}
 
-		buf[i] = dict[index]
+		buf[i] = []rune(dict)[index]
 	}
 
 	return string(buf), nil

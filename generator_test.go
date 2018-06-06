@@ -2,6 +2,7 @@ package randomstring_test
 
 import (
 	"testing"
+	"unicode/utf8"
 
 	"github.com/leonklingele/randomstring"
 )
@@ -35,5 +36,20 @@ func TestRandomStringInvalidLength(t *testing.T) {
 func TestRandomStringInvalidChars(t *testing.T) {
 	if _, err := randomstring.Generate(1, ""); err != randomstring.ErrInvalidDictSpecified {
 		t.Errorf("unexpected error using empty dictionary: %v", err)
+	}
+}
+
+func TestRandomStringWithNonASCII(t *testing.T) {
+	const (
+		dict = "世界"
+		l    = 5
+	)
+
+	s, err := randomstring.Generate(l, dict)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := utf8.RuneCountInString(s); got != l {
+		t.Fatalf("invalid length of string, got %d, want %d", got, l)
 	}
 }
