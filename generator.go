@@ -3,6 +3,7 @@ package randomstring
 import (
 	"crypto/rand"
 	"errors"
+	"math"
 	"math/big"
 	"unicode/utf8"
 )
@@ -28,7 +29,7 @@ var (
 // Generate generates a cryptographically secure and unbiased string of length 'l' using alphabet 'dict'
 func Generate(l int, dict string) (string, error) {
 	// Length needs to be in range [1, 1<<31-1]
-	if l <= 0 || l > 1<<31-1 {
+	if l <= 0 || l > math.MaxInt32 {
 		return "", ErrInvalidLengthSpecified
 	}
 
