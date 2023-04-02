@@ -1,6 +1,6 @@
 # Cryptographically secure random strings in Go
 
-[![Build Status](https://travis-ci.org/leonklingele/randomstring.svg?branch=master)](https://travis-ci.org/leonklingele/randomstring)
+[![Test status](https://github.com/leonklingele/randomstring/actions/workflows/test.yml/badge.svg)](https://github.com/leonklingele/randomstring/actions/workflows/test.yml)
 
 I was tired of so many Go apps and libraries being [modulo-biased](https://stackoverflow.com/a/10984975) when generating random strings.
 Here's another library to generate cryptographically secure and unbiased strings.
