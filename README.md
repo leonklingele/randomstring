@@ -10,7 +10,7 @@ Internally this library uses Go's [crypto/rand](https://golang.org/pkg/crypto/ra
 
 ```sh
 # Install library
-go get -u github.com/leonklingele/randomstring
+go get -u github.com/leonklingele/randomstring/v2
 ```
 
 ```go

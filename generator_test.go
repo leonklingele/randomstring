@@ -5,7 +5,7 @@ import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/leonklingele/randomstring"
+	"github.com/leonklingele/randomstring/v2"
 )
 
 func TestRandomStringLength(t *testing.T) {
