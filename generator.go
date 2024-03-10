@@ -26,32 +26,54 @@ var (
 	ErrInvalidDictSpecified = errors.New("invalid password dictionary specified")
 )
 
-// Generate generates a cryptographically secure and unbiased string of length 'l' using alphabet 'dict'
-func Generate(l int, dict string) (string, error) {
-	// Length needs to be in range [1, 1<<31-1]
-	if l <= 0 || l > math.MaxInt32 {
-		return "", ErrInvalidLengthSpecified
-	}
+type Generator struct {
+	l    int
+	dict []rune
+	max  *big.Int
+}
 
-	dlen := utf8.RuneCountInString(dict)
-
-	if dlen == 0 {
-		return "", ErrInvalidDictSpecified
-	}
-
-	buf := make([]rune, l)
-	max := big.NewInt(int64(dlen))
-
-	for i := 0; i < l; i++ {
-		index, err := randomInt(max)
+func (g *Generator) Generate() (string, error) {
+	buf := make([]rune, g.l)
+	for i := 0; i < g.l; i++ {
+		index, err := randomInt(g.max)
 		if err != nil {
 			return "", err
 		}
 
-		buf[i] = []rune(dict)[index]
+		buf[i] = g.dict[index]
 	}
 
 	return string(buf), nil
+}
+
+func NewGenerator(l int, dict string) (*Generator, error) {
+	// Length needs to be in range [1, 1<<31-1]
+	if l <= 0 || l > math.MaxInt32 {
+		return nil, ErrInvalidLengthSpecified
+	}
+
+	dlen := utf8.RuneCountInString(dict)
+	if dlen == 0 {
+		return nil, ErrInvalidDictSpecified
+	}
+
+	max := big.NewInt(int64(dlen))
+
+	return &Generator{
+		l:    l,
+		dict: []rune(dict),
+		max:  max,
+	}, nil
+}
+
+// Generate generates a cryptographically secure and unbiased random string of length 'l' using alphabet 'dict'
+func Generate(l int, dict string) (string, error) {
+	gen, err := NewGenerator(l, dict)
+	if err != nil {
+		return "", err
+	}
+
+	return gen.Generate()
 }
 
 func randomInt(max *big.Int) (int, error) {

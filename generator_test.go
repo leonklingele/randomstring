@@ -77,3 +77,46 @@ func TestRandomStringWithNonASCII(t *testing.T) {
 		t.Fatalf("invalid length of string, got %d, want %d", got, l)
 	}
 }
+
+func BenchmarkGenerate(b *testing.B) {
+	const (
+		l    = 32
+		dict = randomstring.CharsAlphaNum
+	)
+
+	for i := 0; i < b.N; i++ {
+		s, err := randomstring.Generate(l, randomstring.CharsAlphaNum)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		if len(s) != l {
+			b.Fatalf("invalid length of %q: %d != %d", s, len(s), l)
+		}
+	}
+}
+
+func BenchmarkGenerator(b *testing.B) {
+	const (
+		l    = 32
+		dict = randomstring.CharsAlphaNum
+	)
+
+	genl32, err := randomstring.NewGenerator(l, dict)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		s, err := genl32.Generate()
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		if len(s) != l {
+			b.Fatalf("invalid length of %q: %d != %d", s, len(s), l)
+		}
+	}
+}
