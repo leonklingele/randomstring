@@ -27,23 +27,9 @@ var (
 )
 
 type Generator struct {
-	l    int
-	dict []rune
-	max  *big.Int
-}
-
-func (g *Generator) Generate() (string, error) {
-	buf := make([]rune, g.l)
-	for i := 0; i < g.l; i++ {
-		index, err := randomInt(g.max)
-		if err != nil {
-			return "", err
-		}
-
-		buf[i] = g.dict[index]
-	}
-
-	return string(buf), nil
+	l      int
+	dict   []rune
+	maxlen *big.Int
 }
 
 func NewGenerator(l int, dict string) (*Generator, error) {
@@ -57,13 +43,27 @@ func NewGenerator(l int, dict string) (*Generator, error) {
 		return nil, ErrInvalidDictSpecified
 	}
 
-	max := big.NewInt(int64(dlen))
+	maxlen := big.NewInt(int64(dlen))
 
 	return &Generator{
-		l:    l,
-		dict: []rune(dict),
-		max:  max,
+		l:      l,
+		dict:   []rune(dict),
+		maxlen: maxlen,
 	}, nil
+}
+
+func (g *Generator) Generate() (string, error) {
+	buf := make([]rune, g.l)
+	for i := range g.l {
+		index, err := randomInt(g.maxlen)
+		if err != nil {
+			return "", err
+		}
+
+		buf[i] = g.dict[index]
+	}
+
+	return string(buf), nil
 }
 
 // Generate generates a cryptographically secure and unbiased random string of length 'l' using alphabet 'dict'
@@ -76,10 +76,10 @@ func Generate(l int, dict string) (string, error) {
 	return gen.Generate()
 }
 
-func randomInt(max *big.Int) (int, error) {
-	i, err := rand.Int(rand.Reader, max)
+func randomInt(maxlen *big.Int) (int, error) {
+	i, err := rand.Int(rand.Reader, maxlen)
 	if err != nil {
-		return 0, err
+		return 0, err //nolint:wrapcheck // Fine to not wrap this here
 	}
 
 	return int(i.Int64()), nil

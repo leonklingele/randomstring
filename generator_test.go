@@ -1,6 +1,7 @@
 package randomstring_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 	"unicode/utf8"
@@ -15,8 +16,6 @@ func TestRandomStringLength(t *testing.T) {
 	dict := randomstring.CharsASCII
 
 	for _, l := range ls {
-		l := l
-
 		t.Run(fmt.Sprintf("len-%d", l), func(t *testing.T) {
 			t.Parallel()
 
@@ -29,7 +28,6 @@ func TestRandomStringLength(t *testing.T) {
 				t.Errorf("unexpected length of generated string: want %d, got %d", l, len(s))
 			}
 		})
-
 	}
 }
 
@@ -40,12 +38,10 @@ func TestRandomStringInvalidLength(t *testing.T) {
 	dict := randomstring.CharsAlpha
 
 	for _, l := range ls {
-		l := l
-
 		t.Run(fmt.Sprintf("len-%d", l), func(t *testing.T) {
 			t.Parallel()
 
-			if _, err := randomstring.Generate(l, dict); err != randomstring.ErrInvalidLengthSpecified {
+			if _, err := randomstring.Generate(l, dict); !errors.Is(err, randomstring.ErrInvalidLengthSpecified) {
 				t.Errorf("unexpected error for length %d: %v", l, err)
 			}
 		})
@@ -55,7 +51,7 @@ func TestRandomStringInvalidLength(t *testing.T) {
 func TestRandomStringInvalidChars(t *testing.T) {
 	t.Parallel()
 
-	if _, err := randomstring.Generate(1, ""); err != randomstring.ErrInvalidDictSpecified {
+	if _, err := randomstring.Generate(1, ""); !errors.Is(err, randomstring.ErrInvalidDictSpecified) {
 		t.Errorf("unexpected error using empty dictionary: %v", err)
 	}
 }
@@ -64,7 +60,7 @@ func TestRandomStringWithNonASCII(t *testing.T) {
 	t.Parallel()
 
 	const (
-		dict = "世界"
+		dict = "世界" //nolint:gosmopolitan // We explicitly want to test this
 		l    = 5
 	)
 
@@ -84,7 +80,7 @@ func BenchmarkGenerate(b *testing.B) {
 		dict = randomstring.CharsAlphaNum
 	)
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s, err := randomstring.Generate(l, randomstring.CharsAlphaNum)
 		if err != nil {
 			b.Fatal(err)
@@ -99,7 +95,7 @@ func BenchmarkGenerate(b *testing.B) {
 func BenchmarkGenerator(b *testing.B) {
 	const (
 		l    = 32
-		dict = randomstring.CharsAlphaNum
+		dict = randomstring.CharsAlphaNum //nolint:goconst // We don't care to duplicate function-scoped consts
 	)
 
 	genl32, err := randomstring.NewGenerator(l, dict)
@@ -109,7 +105,7 @@ func BenchmarkGenerator(b *testing.B) {
 
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for b.Loop() {
 		s, err := genl32.Generate()
 		if err != nil {
 			b.Fatal(err)
